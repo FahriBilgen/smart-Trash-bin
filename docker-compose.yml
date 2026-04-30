@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: smart-trash-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: smart_trash_bin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./smart-trash-bin/backend
+    container_name: smart-trash-backend
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/smart_trash_bin
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
