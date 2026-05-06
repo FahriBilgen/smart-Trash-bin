@@ -48,14 +48,16 @@ def send_alert_email(to_email: str, alert_type: str, message: str) -> bool:
 
     print(f"DEBUG EMAIL: {to_email} adresine baglanti kuruluyor (Port: {SMTP_PORT})...")
 
+    import socket
     try:
         if SMTP_PORT == 465:
-            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=10) as smtp:
+            # IPv4 zorlayarak SSL baglantisi kur
+            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=15) as smtp:
                 print("DEBUG EMAIL: SSL baglantisi kuruldu, login olunuyor...")
                 smtp.login(SMTP_USER, password)
                 smtp.send_message(email)
         else:
-            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as smtp:
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15) as smtp:
                 print("DEBUG EMAIL: SMTP baglantisi kuruldu, TLS baslatiliyor...")
                 smtp.starttls()
                 print("DEBUG EMAIL: TLS basarili, login olunuyor...")
