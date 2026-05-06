@@ -54,10 +54,15 @@ Bu e-posta FastAPI backend tarafindan otomatik gonderilmistir.
     )
 
     try:
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as smtp:
-            smtp.starttls()
-            smtp.login(SMTP_USER, SMTP_PASSWORD)
-            smtp.send_message(email)
+        if SMTP_PORT == 465:
+            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as smtp:
+                smtp.login(SMTP_USER, SMTP_PASSWORD)
+                smtp.send_message(email)
+        else:
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as smtp:
+                smtp.starttls()
+                smtp.login(SMTP_USER, SMTP_PASSWORD)
+                smtp.send_message(email)
 
         print(f"Email gonderildi: {to_email}")
         return True

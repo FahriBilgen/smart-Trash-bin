@@ -38,7 +38,8 @@ export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: 
       unit: "RAW",
       icon: Wind,
       color: odorAlert ? "text-red-500" : "text-primary",
-      desc: odorAlert ? "Koku Tespiti" : "Normal Seviye"
+      desc: odorAlert ? "KRİTİK KOKU TESPİTİ" : "Normal Seviye",
+      isAlert: odorAlert
     },
     {
       title: "Mesafe",
@@ -46,7 +47,8 @@ export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: 
       unit: "CM",
       icon: Gauge,
       color: "text-secondary",
-      desc: "Anlık Mesafe"
+      desc: "Anlık Mesafe",
+      isAlert: false
     },
     {
       title: "Veri Gecikmesi",
@@ -54,7 +56,8 @@ export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: 
       unit: "SN",
       icon: Clock,
       color: "text-secondary",
-      desc: "Senkronizasyon"
+      desc: "Senkronizasyon",
+      isAlert: false
     }
   ];
 
@@ -70,26 +73,49 @@ export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: 
           key={stat.title}
           variants={item}
           whileHover={{ y: -5 }}
-          className="relative p-8 rounded-[2.5rem] bg-white border border-border/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(45,36,30,0.05)] overflow-hidden"
+          className={cn(
+            "relative p-8 rounded-[2.5rem] border transition-all duration-500 overflow-hidden",
+            stat.isAlert 
+              ? "bg-red-50 border-red-200 shadow-[0_20px_40px_rgba(239,68,68,0.1)]" 
+              : "bg-white border-border/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(45,36,30,0.05)]"
+          )}
         >
           {/* Decorative Corner Element */}
-          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-[5rem] -mr-8 -mt-8 transition-transform group-hover:scale-110" />
+          <div className={cn(
+            "absolute top-0 right-0 w-24 h-24 rounded-bl-[5rem] -mr-8 -mt-8 transition-transform group-hover:scale-110",
+            stat.isAlert ? "bg-red-500/10" : "bg-primary/5"
+          )} />
           
           <div className="relative z-10 flex flex-col h-full">
-            <div className={cn("mb-6 w-12 h-12 flex items-center justify-center rounded-2xl bg-muted/50 transition-colors", stat.color)}>
-              <stat.icon size={22} strokeWidth={1.5} />
+            <div className={cn(
+              "mb-6 w-12 h-12 flex items-center justify-center rounded-2xl transition-colors", 
+              stat.isAlert ? "bg-red-500 text-white shadow-lg shadow-red-200" : "bg-muted/50 " + stat.color
+            )}>
+              <stat.icon size={22} strokeWidth={stat.isAlert ? 2.5 : 1.5} />
             </div>
 
             <div className="mt-auto">
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-4xl font-black text-secondary tracking-tighter leading-none">
+                <span className={cn(
+                  "text-4xl font-black tracking-tighter leading-none",
+                  stat.isAlert ? "text-red-600" : "text-secondary"
+                )}>
                   {typeof stat.value === 'number' ? <AnimatedNumber value={stat.value} /> : stat.value}
                 </span>
-                <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">{stat.unit}</span>
+                <span className={cn(
+                  "text-[10px] font-black uppercase tracking-widest",
+                  stat.isAlert ? "text-red-400" : "text-muted-foreground/40"
+                )}>{stat.unit}</span>
               </div>
               
-              <p className="text-[11px] font-black text-secondary uppercase tracking-[0.2em] mb-1">{stat.title}</p>
-              <p className="text-[10px] font-medium text-muted-foreground/60">{stat.desc}</p>
+              <p className={cn(
+                "text-[11px] font-black uppercase tracking-[0.2em] mb-1",
+                stat.isAlert ? "text-red-700" : "text-secondary"
+              )}>{stat.title}</p>
+              <p className={cn(
+                "text-[10px] font-medium",
+                stat.isAlert ? "text-red-500/80 font-bold" : "text-muted-foreground/60"
+              )}>{stat.desc}</p>
             </div>
           </div>
         </motion.div>

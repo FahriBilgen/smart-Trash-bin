@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, ShieldCheck, Zap } from "lucide-react";
+import { Trash2, ShieldCheck, Zap, AlertTriangle } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import AnimatedNumber from "./AnimatedNumber";
@@ -17,6 +17,7 @@ interface FullnessCardProps {
 
 export default function FullnessCard({ percent, status }: FullnessCardProps) {
   const isFull = percent >= 90;
+  const isOdor = status === 'odor_alert';
 
   return (
     <motion.div 
@@ -25,18 +26,27 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
       className="relative flex flex-col items-center group h-full"
     >
       {/* Label Pill */}
-      <div className="glass-pill mb-8 flex items-center gap-2 z-10">
-        <Zap size={10} className="text-primary fill-primary" />
-        <span>Kapasite Analizi</span>
+      <div className={cn(
+        "glass-pill mb-8 flex items-center gap-2 z-10 transition-colors",
+        isOdor && "bg-red-500 text-white border-red-400"
+      )}>
+        {isOdor ? <AlertTriangle size={10} className="fill-white" /> : <Zap size={10} className="text-primary fill-primary" />}
+        <span>{isOdor ? "KRİTİK DURUM" : "Kapasite Analizi"}</span>
       </div>
 
       {/* Main Vessel */}
       <div className="relative w-64 h-[450px]">
         {/* Vessel Shadow/Base */}
-        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-10 bg-secondary/10 blur-2xl rounded-full" />
+        <div className={cn(
+          "absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-10 blur-2xl rounded-full transition-colors",
+          isOdor ? "bg-red-500/20" : "bg-secondary/10"
+        )} />
         
         {/* Glass Container */}
-        <div className="absolute inset-0 bg-white/30 backdrop-blur-3xl rounded-[4rem] border-[1px] border-white/80 shadow-[inset_0_0_40px_rgba(255,255,255,0.5)] overflow-hidden flex items-end">
+        <div className={cn(
+          "absolute inset-0 bg-white/30 backdrop-blur-3xl rounded-[4rem] border-[1px] shadow-[inset_0_0_40px_rgba(255,255,255,0.5)] overflow-hidden flex items-end transition-colors",
+          isOdor ? "border-red-300 bg-red-50/20" : "border-white/80"
+        )}>
           {/* Inner Light/Glow */}
           <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
           
@@ -44,7 +54,7 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
           <motion.div 
             className={cn(
               "absolute bottom-0 left-0 right-0 transition-colors duration-1000",
-              isFull ? "bg-red-400/80" : "bg-primary/60"
+              (isFull || isOdor) ? "bg-red-400/80" : "bg-primary/60"
             )}
             initial={{ height: 0 }}
             animate={{ height: `${percent}%` }}
@@ -69,11 +79,17 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
               animate={{ scale: 1, opacity: 1 }}
               className="text-center"
             >
-              <div className="text-7xl font-black text-secondary tracking-tighter leading-none mb-2">
+              <div className={cn(
+                "text-7xl font-black tracking-tighter leading-none mb-2 transition-colors",
+                isOdor ? "text-red-600" : "text-secondary"
+              )}>
                 <AnimatedNumber value={percent} />
                 <span className="text-xl ml-1 opacity-30">%</span>
               </div>
-              <div className="text-[10px] font-black text-secondary/40 uppercase tracking-[0.3em]">
+              <div className={cn(
+                "text-[10px] font-black uppercase tracking-[0.3em] transition-colors",
+                isOdor ? "text-red-400" : "text-secondary/40"
+              )}>
                 Doluluk
               </div>
             </motion.div>
@@ -84,9 +100,12 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
         <motion.div 
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 4, repeat: Infinity }}
-          className="absolute -left-12 top-1/4 w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-primary border border-white/80"
+          className={cn(
+            "absolute -left-12 top-1/4 w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center border transition-colors",
+            isOdor ? "text-red-500 border-red-200" : "text-primary border-white/80"
+          )}
         >
-          <Trash2 size={20} />
+          {isOdor ? <AlertTriangle size={20} /> : <Trash2 size={20} />}
         </motion.div>
         <motion.div 
           animate={{ y: [0, 10, 0] }}
@@ -103,11 +122,21 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
         transition={{ delay: 0.5 }}
         className="mt-12 text-center"
       >
-        <h4 className="text-xl font-black text-secondary tracking-tight mb-2 capitalize">{status}</h4>
+        <h4 className={cn(
+          "text-xl font-black tracking-tight mb-2 capitalize transition-colors",
+          isOdor ? "text-red-600" : "text-secondary"
+        )}>
+          {isOdor ? "Koku Tespiti Edildi!" : status}
+        </h4>
         <div className="flex items-center justify-center gap-4">
-           <div className="h-[1px] w-8 bg-primary/20" />
-           <span className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.4em]">Sistem Stabil</span>
-           <div className="h-[1px] w-8 bg-primary/20" />
+           <div className={cn("h-[1px] w-8 transition-colors", isOdor ? "bg-red-200" : "bg-primary/20")} />
+           <span className={cn(
+             "text-[10px] font-black uppercase tracking-[0.4em] transition-colors",
+             isOdor ? "text-red-400" : "text-muted-foreground/50"
+           )}>
+             {isOdor ? "DİKKAT" : "Sistem Stabil"}
+           </span>
+           <div className={cn("h-[1px] w-8 transition-colors", isOdor ? "bg-red-200" : "bg-primary/20")} />
         </div>
       </motion.div>
     </motion.div>
