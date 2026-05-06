@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Gauge, Wind, Thermometer, Clock, Activity } from "lucide-react";
+import { Gauge, Wind, Clock, Activity, ShieldCheck } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import AnimatedNumber from "./AnimatedNumber";
@@ -52,20 +52,20 @@ export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: 
       bgColor: "bg-blue-50"
     },
     {
-      title: "Ortam Sıcaklığı",
-      value: 24,
-      unit: "°C",
-      icon: Thermometer,
-      color: "text-orange-500",
-      bgColor: "bg-orange-50"
-    },
-    {
       title: "Veri Akışı",
       value: lastUpdate ? lastUpdate.split(':')[1] : 0,
       unit: "sn",
       icon: Clock,
       color: "text-purple-500",
       bgColor: "bg-purple-50"
+    },
+    {
+      title: "Cihaz Durumu",
+      value: "AKTİF",
+      unit: "",
+      icon: ShieldCheck,
+      color: "text-emerald-500",
+      bgColor: "bg-emerald-50"
     }
   ];
 

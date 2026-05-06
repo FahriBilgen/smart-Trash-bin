@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, AlertTriangle, CheckCircle2, Droplets } from "lucide-react";
+import { Trash2, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import AnimatedNumber from "./AnimatedNumber";
@@ -36,7 +36,7 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -5 }}
-      className="glass-card rounded-[3rem] p-8 flex flex-col items-center justify-center relative overflow-hidden group transition-all duration-500"
+      className="glass-card rounded-[3rem] p-8 flex flex-col items-center justify-center relative overflow-hidden group transition-all duration-500 h-full"
     >
       {/* Dynamic Background Glow */}
       <div className={cn(
@@ -53,7 +53,7 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
             <Trash2 size={28} />
           </motion.div>
           <div>
-            <h3 className="text-2xl font-black text-secondary tracking-tight">Kapasite</h3>
+            <h3 className="text-2xl font-black text-secondary tracking-tight">Kova Durumu</h3>
             <p className="text-sm font-bold text-muted-foreground/60 uppercase tracking-widest">{status}</p>
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
         </motion.div>
       </div>
 
-      <div className="relative w-56 h-72 bg-primary/5 rounded-[3.5rem] border-[6px] border-white/80 shadow-2xl overflow-hidden backdrop-blur-sm">
+      <div className="relative w-56 h-80 bg-primary/5 rounded-[3.5rem] border-[6px] border-white/80 shadow-2xl overflow-hidden backdrop-blur-sm">
         {/* Liquid Layer */}
         <motion.div 
           className={cn("absolute bottom-0 left-0 right-0", getLiquidColor())}
@@ -112,23 +112,11 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
         </div>
       </div>
 
-      <div className="mt-10 grid grid-cols-2 gap-6 w-full z-10">
-        <motion.div 
-          whileHover={{ scale: 1.05 }}
-          className="bg-white/60 backdrop-blur-sm p-5 rounded-[2rem] border border-white/40 text-center shadow-sm"
-        >
-          <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest block mb-2">Hacim</span>
-          <div className="text-lg font-bold text-secondary">50L</div>
-        </motion.div>
-        <motion.div 
-          whileHover={{ scale: 1.05 }}
-          className="bg-white/60 backdrop-blur-sm p-5 rounded-[2rem] border border-white/40 text-center shadow-sm"
-        >
-          <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest block mb-2">Doluluk</span>
-          <div className={cn("text-lg font-bold", getStatusColor())}>
-            {Math.round(50 * (percent / 100))}L
-          </div>
-        </motion.div>
+      {/* Simplified Footer Info */}
+      <div className="mt-8 text-center z-10">
+        <p className={cn("text-lg font-black tracking-tight", getStatusColor())}>
+          {isFull ? "HAREKETE GEÇİN: KOVA DOLU" : isWarning ? "DİKKAT: DOLMAK ÜZERE" : "SİSTEM STABİL: NORMAL"}
+        </p>
       </div>
     </motion.div>
   );
