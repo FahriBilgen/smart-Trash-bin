@@ -1,75 +1,55 @@
 import os
-import smtplib
-from email.message import EmailMessage
-
+import resend
 from dotenv import load_dotenv
 
-
 # Sorumlu: Alper
-# ALPER - Email Notification Service
-# Alarm olustugunda sistem yoneticisine SMTP uzerinden e-posta gonderiyorum.
-# SMTP bilgileri guvenlik icin .env dosyasindan okunuyor.
+# ALPER - Resend Email Service
+# Render standart SMTP portlarini (587, 465) engelledigi icin 
+# mail gonderimini HTTP API tabanli Resend servisine tasidik.
 
 load_dotenv()
 
-
-SMTP_HOST = os.getenv("SMTP_HOST", "")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
-
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+resend.api_key = RESEND_API_KEY
 
 def is_email_configured() -> bool:
-    return all([
-        SMTP_HOST,
-        SMTP_PORT,
-        SMTP_USER,
-        SMTP_PASSWORD
-    ])
-
+    return bool(RESEND_API_KEY)
 
 def send_alert_email(to_email: str, alert_type: str, message: str) -> bool:
     if not is_email_configured():
-        print(f"DEBUG EMAIL: Config eksik! Host:{SMTP_HOST}, Port:{SMTP_PORT}, User:{SMTP_USER}")
+        print("DEBUG EMAIL: RESEND_API_KEY eksik! Mail gonderilemedi.")
         return False
 
     if not to_email:
-        print("DEBUG EMAIL: Alici email adresi yok.")
+        print("DEBUG EMAIL: Alici adresi eksik.")
         return False
 
-    # Sifredeki olasi bosluklari temizle (Gmail uygulama sifreleri icin)
-    password = SMTP_PASSWORD.replace(" ", "").strip()
-
-    email = EmailMessage()
-    email["From"] = SMTP_USER
-    email["To"] = to_email
-    email["Subject"] = f"Smart Trash Bin Alert: {alert_type}"
-    email.set_content(f"Sistem Uyarisi: {alert_type}\nMesaj: {message}")
-
-    print(f"DEBUG EMAIL: {to_email} adresine baglanti kuruluyor (Port: {SMTP_PORT})...")
-
-    import socket
     try:
-        if SMTP_PORT == 465:
-            # IPv4 zorlayarak SSL baglantisi kur
-            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=15) as smtp:
-                print("DEBUG EMAIL: SSL baglantisi kuruldu, login olunuyor...")
-                smtp.login(SMTP_USER, password)
-                smtp.send_message(email)
-        else:
-            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15) as smtp:
-                print("DEBUG EMAIL: SMTP baglantisi kuruldu, TLS baslatiliyor...")
-                smtp.starttls()
-                print("DEBUG EMAIL: TLS basarili, login olunuyor...")
-                smtp.login(SMTP_USER, password)
-                smtp.send_message(email)
+        print(f"DEBUG EMAIL: Resend API uzerinden {to_email} adresine mail gonderiliyor...")
+        
+        # Resend uzerinden mail gonderimi
+        # Not: Ucretsiz planda sadece onaylanmis mail adreslerine gonderim yapilabilir.
+        # Genelde 'onboarding@resend.dev' uzerinden kendi mailinize gonderim yapmaniza izin verir.
+        
+        params = {
+            "from": "Smart Trash <onboarding@resend.dev>",
+            "to": [to_email],
+            "subject": f"Kritik Uyari: {alert_type}",
+            "html": f"""
+                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                    <h2 style="color: #d32f2f;">Akilli Cop Kovasi Uyarisi</h2>
+                    <p><strong>Alarm Tipi:</strong> {alert_type}</p>
+                    <p><strong>Mesaj:</strong> {message}</p>
+                    <hr/>
+                    <p style="font-size: 12px; color: #888;">Bu mail FastAPI backend tarafindan Resend API kullanilarak gonderilmistir.</p>
+                </div>
+            """,
+        }
 
-        print(f"DEBUG EMAIL: Basarili! Mail gonderildi: {to_email}")
+        r = resend.Emails.send(params)
+        print(f"DEBUG EMAIL: Basarili! Resend ID: {r['id']}")
         return True
 
-    except smtplib.SMTPAuthenticationError:
-        print("DEBUG EMAIL: HATA! Gmail Kullanici adi veya Uygulama Sifresi hatali.")
-        return False
     except Exception as error:
-        print(f"DEBUG EMAIL: HATA! Baglanti sorunu: {error}")
+        print(f"DEBUG EMAIL: Resend hatasi: {error}")
         return False
