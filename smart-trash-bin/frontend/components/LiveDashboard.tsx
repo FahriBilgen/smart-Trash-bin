@@ -215,9 +215,6 @@ export default function LiveDashboard() {
             <section>
               <div className="flex items-center justify-between mb-10">
                 <h2 className="text-2xl font-black text-secondary tracking-tighter uppercase tracking-[0.1em]">Veri Günlüğü</h2>
-                <button className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 transition-transform">
-                  TÜMÜ <ArrowUpRight size={14} />
-                </button>
               </div>
               <RecentReadingsTable readings={readings} />
             </section>
