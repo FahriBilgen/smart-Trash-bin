@@ -101,7 +101,7 @@ export async function getLatestReading(): Promise<LatestReading | null> {
     const response = await fetchWithRetry(`${API_BASE_URL}/api/dashboard/latest`);
     const data = await response.json();
 
-    if (data.data === null || data.data === undefined) {
+    if (!data || (data.message && data.data === null)) {
       return null;
     }
 

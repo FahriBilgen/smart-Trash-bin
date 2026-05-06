@@ -1,92 +1,99 @@
 "use client";
 
-// Sorumlu: Fahri + Alper
-// FAHRI + ALPER
-// Fahri: Alarm tablosunu ve kullanıcı butonunu hazırladı.
-// Alper: Acknowledge butonunun backend PATCH endpointine bağlanmasını sağladı.
+import { motion } from "framer-motion";
+import { BellRing, CheckCircle, Trash2, Wind } from "lucide-react";
 
-import type { AlertItem } from "../lib/api";
-import { acknowledgeAlert } from "../lib/api";
+interface Alert {
+  id: number;
+  type: string;
+  message: string;
+  acknowledged: boolean;
+  created_at: string;
+}
 
-type Props = {
-  alerts: AlertItem[];
-  onAlertUpdated?: () => void;
-};
+interface AlertsTableProps {
+  alerts: Alert[];
+  onAcknowledge: (id: number) => void;
+}
 
-export default function AlertsTable({ alerts, onAlertUpdated }: Props) {
-  async function handleAcknowledge(alertId: number) {
-    try {
-      await acknowledgeAlert(alertId);
-      if (onAlertUpdated) onAlertUpdated();
-    } catch (error) {
-      console.error("Alert acknowledge error:", error);
-      alert("Alarm onaylanamadi.");
-    }
-  }
-
+export default function AlertsTable({ alerts, onAcknowledge }: AlertsTableProps) {
   return (
-    <div className="card-premium p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900 tracking-tight">Recent Alerts</h2>
-        <span className="rounded-full bg-blue-50 px-3 py-1 text-[10px] font-bold text-blue-600 uppercase">Live Feed</span>
+    <motion.div 
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="glass-card rounded-[2.5rem] p-8 h-full"
+    >
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-orange-100 text-orange-600">
+            <BellRing size={20} />
+          </div>
+          <h3 className="text-xl font-bold text-secondary">Bildirimler</h3>
+        </div>
+        {alerts.length > 0 && (
+          <span className="px-2 py-0.5 bg-orange-500 text-white text-[10px] font-bold rounded-full">
+            {alerts.length} Yeni
+          </span>
+        )}
       </div>
 
-      {alerts.length === 0 ? (
-        <div className="py-12 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
-            <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+      <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+        {alerts.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle size={32} />
+            </div>
+            <p className="text-muted-foreground text-sm font-medium">Her Şey Yolunda!</p>
+            <p className="text-xs text-muted-foreground/60">Yeni bildirim bulunmuyor.</p>
           </div>
-          <p className="text-sm font-medium text-gray-500 uppercase tracking-widest">System Clear</p>
-          <p className="mt-1 text-xs text-gray-400">No active alerts</p>
-        </div>
-      ) : (
-        <div className="overflow-hidden">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                <th className="pb-3 pr-4 font-semibold">Type</th>
-                <th className="pb-3 pr-4 font-semibold">Status</th>
-                <th className="pb-3 text-right font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {alerts.map((alertItem) => (
-                <tr key={alertItem.id} className="group transition-colors hover:bg-gray-50/50">
-                  <td className="py-4 pr-4">
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-gray-900 capitalize">{alertItem.type.replace('_', ' ')}</span>
-                      <span className="text-[10px] text-gray-400">{new Date(alertItem.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 pr-4">
-                    {alertItem.acknowledged ? (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
-                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Resolved
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-[10px] font-bold text-rose-700">
-                        <div className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" /> Active
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-4 text-right">
-                    {!alertItem.acknowledged && (
-                      <button
-                        onClick={() => handleAcknowledge(alertItem.id)}
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md active:scale-95"
-                      >
-                        Resolve
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+        ) : (
+          alerts.map((alert, index) => (
+            <motion.div
+              key={alert.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className={`p-4 rounded-2xl border flex items-start gap-4 transition-all group ${
+                alert.acknowledged ? 'bg-muted/30 border-transparent grayscale' : 'bg-white/50 border-white shadow-sm hover:shadow-md'
+              }`}
+            >
+              <div className={`p-2 rounded-xl shrink-0 ${
+                alert.type === 'odor' ? 'bg-purple-100 text-purple-600' : 'bg-red-100 text-red-600'
+              }`}>
+                {alert.type === 'odor' ? <Wind size={18} /> : <Trash2 size={18} />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-secondary truncate">{alert.message}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {new Date(alert.created_at).toLocaleString()}
+                </p>
+              </div>
+              {!alert.acknowledged && (
+                <button 
+                  onClick={() => onAcknowledge(alert.id)}
+                  className="p-2 rounded-lg bg-emerald-50 text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Onayla"
+                >
+                  <CheckCircle size={16} />
+                </button>
+              )}
+            </motion.div>
+          ))
+        )}
+      </div>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(212, 201, 181, 0.3);
+          border-radius: 10px;
+        }
+      `}</style>
+    </motion.div>
   );
 }

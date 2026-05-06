@@ -1,24 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-outfit",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
-  title: "Smart Trash Bin - IoT Monitoring Dashboard",
-  description: "Real-time waste management analytics and smart monitoring system with live sensor data and alerts",
-  keywords: "smart trash, IoT, waste management, monitoring, dashboard, ESP32",
-  authors: [{ name: "Smart Trash Bin Team" }],
-  viewport: "width=device-width, initial-scale=1",
-  themeColor: "#3b82f6",
+  title: "Smart Trash Bin | Premium IoT Monitoring",
+  description: "Next-generation waste management and odor monitoring system.",
 };
 
 export default function RootLayout({
@@ -27,11 +19,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="tr">
+      <body className={`${outfit.variable} font-sans antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }

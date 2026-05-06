@@ -1,17 +1,15 @@
 "use client";
 
-// Sorumlu: Fahri
-// FAHRI - Kullanici Kurulum ve Ayarlar Modali
-// Bu bilesen kullanicidan ad, soyad ve mail bilgilerini alir.
-
 import { useState } from "react";
-import { updateUserInfo, type User } from "../lib/api";
+import { motion, AnimatePresence } from "framer-motion";
+import { User, Mail, Save, X, Sparkles } from "lucide-react";
+import { updateUserInfo, type User as UserType } from "../lib/api";
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  currentUser: User | null;
-  onUpdate: (user: User) => void;
+  currentUser: UserType | null;
+  onUpdate: (user: UserType) => void;
 };
 
 export default function UserSetupModal({ isOpen, onClose, currentUser, onUpdate }: Props) {
@@ -19,8 +17,6 @@ export default function UserSetupModal({ isOpen, onClose, currentUser, onUpdate 
   const [firstName, setFirstName] = useState(currentUser?.first_name || "");
   const [lastName, setLastName] = useState(currentUser?.last_name || "");
   const [loading, setLoading] = useState(false);
-
-  if (!isOpen) return null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,89 +39,105 @@ export default function UserSetupModal({ isOpen, onClose, currentUser, onUpdate 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm transition-opacity">
-      <div className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 shadow-2xl transition-all">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-            <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">
-              {currentUser ? "Account Settings" : "Welcome to Smart Trash Bin"}
-            </h2>
-            <p className="text-sm text-gray-500">
-              {currentUser ? "Update your profile" : "Complete your profile setup"}
-            </p>
-          </div>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={currentUser ? onClose : undefined}
+            className="absolute inset-0 bg-secondary/20 backdrop-blur-sm"
+          />
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] bg-white p-10 shadow-2xl"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+            
+            <div className="relative mb-8 text-center">
+              <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-4 text-primary">
+                <Sparkles size={40} />
+              </div>
+              <h2 className="text-2xl font-black text-secondary tracking-tight">
+                {currentUser ? "Hesap Ayarları" : "Hoş Geldiniz"}
+              </h2>
+              <p className="text-sm text-muted-foreground font-medium">
+                {currentUser ? "Profil bilgilerinizi güncelleyin" : "Akıllı çöp kovası sistemini kurun"}
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/50" size={18} />
+                  <input
+                    type="text"
+                    required
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full rounded-2xl bg-primary/5 border-2 border-transparent px-12 py-4 text-secondary font-medium focus:border-primary/30 focus:bg-white focus:outline-none transition-all placeholder:text-muted-foreground/40"
+                    placeholder="Adınız"
+                  />
+                </div>
+
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/50" size={18} />
+                  <input
+                    type="text"
+                    required
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full rounded-2xl bg-primary/5 border-2 border-transparent px-12 py-4 text-secondary font-medium focus:border-primary/30 focus:bg-white focus:outline-none transition-all placeholder:text-muted-foreground/40"
+                    placeholder="Soyadınız"
+                  />
+                </div>
+
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/50" size={18} />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-2xl bg-primary/5 border-2 border-transparent px-12 py-4 text-secondary font-medium focus:border-primary/30 focus:bg-white focus:outline-none transition-all placeholder:text-muted-foreground/40"
+                    placeholder="E-posta Adresiniz"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                {currentUser && (
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex-1 rounded-2xl border-2 border-primary/20 px-6 py-4 font-bold text-secondary transition-all hover:bg-primary/5 active:scale-95"
+                  >
+                    Vazgeç
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-[2] rounded-2xl bg-secondary px-6 py-4 font-bold text-white shadow-lg shadow-secondary/20 transition-all hover:bg-secondary/90 disabled:opacity-50 active:scale-95 flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  ) : (
+                    <>
+                      <Save size={20} />
+                      Kaydet
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </motion.div>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-gray-700">First Name</label>
-            <input
-              type="text"
-              required
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
-              placeholder="Fahri"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-gray-700">Last Name</label>
-            <input
-              type="text"
-              required
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
-              placeholder="Soyad"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-gray-700">Email Address</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
-              placeholder="example@gmail.com"
-            />
-            <p className="text-xs text-gray-500">Alert notifications will be sent to this address</p>
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            {currentUser && (
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 font-semibold text-gray-700 transition-colors hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-            )}
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400 disabled:hover:bg-blue-400"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Saving...
-                </span>
-              ) : (
-                "Save and Continue"
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }

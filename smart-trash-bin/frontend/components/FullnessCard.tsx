@@ -1,127 +1,135 @@
 "use client";
 
-// Sorumlu: Fahri
-// FAHRI - Premium Doluluk Karti
-// Kullanici burada cop kutusunun doluluk oranini gorsel bir "bin" ikonografisi ile gorur.
+import { motion, AnimatePresence } from "framer-motion";
+import { Trash2, AlertTriangle, CheckCircle2, Droplets } from "lucide-react";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+import AnimatedNumber from "./AnimatedNumber";
 
-import type { LatestReading } from "../lib/api";
-
-type Props = {
-  reading: LatestReading | null;
-};
-
-function getStatusInfo(status: string) {
-  switch (status) {
-    case "normal":
-      return { label: "SAFE", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", dot: "bg-emerald-500" };
-    case "warning":
-      return { label: "CHECK SOON", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100", dot: "bg-amber-500" };
-    case "full":
-      return { label: "FULL", color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-100", dot: "bg-rose-500" };
-    case "odor_alert":
-      return { label: "ODOR ALERT", color: "text-violet-600", bg: "bg-violet-50", border: "border-violet-100", dot: "bg-violet-500" };
-    default:
-      return { label: status.toUpperCase(), color: "text-gray-600", bg: "bg-gray-50", border: "border-gray-100", dot: "bg-gray-500" };
-  }
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
 
-export default function FullnessCard({ reading }: Props) {
-  if (!reading) {
-    return (
-      <div className="card-premium">
-        <h2 className="text-xl font-bold text-gray-800">Current Status</h2>
-        <div className="mt-6 flex flex-col items-center justify-center py-10 gap-4">
-          <div className="relative h-12 w-12">
-            <div className="absolute inset-0 h-full w-full animate-spin rounded-full border-4 border-blue-100 border-t-blue-600" />
-          </div>
-          <div className="text-center">
-            <p className="text-gray-500 font-medium">Waiting for sensor data...</p>
-            <p className="mt-1 text-sm text-gray-400">Connecting to device</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+interface FullnessCardProps {
+  percent: number;
+  status: string;
+}
 
-  const fillPercent = Math.round(reading.fill_percent);
-  const statusInfo = getStatusInfo(reading.status);
+export default function FullnessCard({ percent, status }: FullnessCardProps) {
+  const isFull = percent >= 90;
+  const isWarning = percent >= 75 && percent < 90;
 
-  const getFillColor = () => {
-    if (fillPercent > 80) return 'from-rose-500 to-rose-400';
-    if (fillPercent > 50) return 'from-amber-500 to-amber-400';
-    return 'from-emerald-500 to-emerald-400';
+  const getStatusColor = () => {
+    if (isFull) return "text-red-500";
+    if (isWarning) return "text-orange-500";
+    return "text-emerald-500";
+  };
+
+  const getLiquidColor = () => {
+    if (isFull) return "bg-gradient-to-t from-red-500 to-red-400";
+    if (isWarning) return "bg-gradient-to-t from-orange-500 to-orange-400";
+    return "bg-gradient-to-t from-emerald-500 to-emerald-400";
   };
 
   return (
-    <div className="card-premium p-6 md:p-8">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold text-gray-900">Bin Health</h2>
-            <div className={`status-dot ${statusInfo.dot}`} />
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ y: -5 }}
+      className="glass-card rounded-[3rem] p-8 flex flex-col items-center justify-center relative overflow-hidden group transition-all duration-500"
+    >
+      {/* Dynamic Background Glow */}
+      <div className={cn(
+        "absolute -bottom-24 -left-24 w-64 h-64 rounded-full blur-[100px] transition-colors duration-1000 opacity-20",
+        isFull ? "bg-red-500" : isWarning ? "bg-orange-500" : "bg-emerald-500"
+      )} />
+      
+      <div className="flex items-center justify-between w-full mb-10 z-10">
+        <div className="flex items-center gap-4">
+          <motion.div 
+            whileHover={{ rotate: 15 }}
+            className={cn("p-4 rounded-2xl shadow-lg shadow-black/5", "bg-white", getStatusColor())}
+          >
+            <Trash2 size={28} />
+          </motion.div>
+          <div>
+            <h3 className="text-2xl font-black text-secondary tracking-tight">Kapasite</h3>
+            <p className="text-sm font-bold text-muted-foreground/60 uppercase tracking-widest">{status}</p>
           </div>
-          <p className="text-sm text-gray-500">
-            Last updated: {new Date(reading.created_at).toLocaleTimeString()}
-          </p>
         </div>
-
-        <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wider ${statusInfo.bg} ${statusInfo.color} ${statusInfo.border}`}>
-          {statusInfo.label}
-        </div>
+        <motion.div 
+          animate={isFull ? { scale: [1, 1.2, 1], rotate: [0, 5, -5, 0] } : {}}
+          transition={{ repeat: Infinity, duration: 2 }}
+          className={cn("p-3 rounded-full bg-white shadow-sm", getStatusColor())}
+        >
+          {isFull ? <AlertTriangle size={20} /> : <CheckCircle2 size={20} />}
+        </motion.div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center">
-        {/* Left: Fill Visualization */}
-        <div className="flex items-center gap-8">
-          <div className="relative h-48 w-24 rounded-2xl bg-gray-100 p-1 shadow-inner border border-gray-200">
-            {/* Bin Fill Animation */}
-            <div 
-              className={`absolute bottom-1 left-1 right-1 rounded-xl transition-all duration-1000 ease-out flex items-center justify-center overflow-hidden bg-gradient-to-t ${getFillColor()}`}
-              style={{ height: `calc(${fillPercent}% - 8px)`, minHeight: fillPercent > 0 ? '20px' : '0' }}
+      <div className="relative w-56 h-72 bg-primary/5 rounded-[3.5rem] border-[6px] border-white/80 shadow-2xl overflow-hidden backdrop-blur-sm">
+        {/* Liquid Layer */}
+        <motion.div 
+          className={cn("absolute bottom-0 left-0 right-0", getLiquidColor())}
+          initial={{ height: 0 }}
+          animate={{ height: `${percent}%` }}
+          transition={{ type: "spring", stiffness: 50, damping: 20 }}
+        >
+          {/* Advanced Waves */}
+          <div className="absolute top-0 left-0 right-0 h-8 -mt-4 overflow-hidden">
+            <motion.div 
+              animate={{ x: ["-50%", "0%"] }}
+              transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+              className="flex w-[200%] h-full opacity-40"
             >
-              <div className="absolute inset-0 bg-white/20 animate-pulse" />
-            </div>
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-1/4 h-full bg-white rounded-[50%] blur-sm" />
+              ))}
+            </motion.div>
           </div>
+          
+          {/* Bubbles */}
+          <AnimatePresence>
+            {[1, 2, 3].map((i) => (
+              <motion.div
+                key={i}
+                initial={{ bottom: 0, x: Math.random() * 100, opacity: 0 }}
+                animate={{ bottom: "100%", opacity: [0, 0.5, 0] }}
+                transition={{ duration: 2 + i, repeat: Infinity, delay: i }}
+                className="absolute w-2 h-2 bg-white/30 rounded-full"
+              />
+            ))}
+          </AnimatePresence>
+        </motion.div>
 
-          <div className="space-y-2">
-            <div className="flex items-baseline gap-1">
-              <span className="text-6xl font-black text-gray-900 leading-none tracking-tight">%{fillPercent}</span>
-            </div>
-            <p className="text-base font-semibold text-gray-400 uppercase tracking-wide">Capacity Used</p>
-          </div>
-        </div>
-
-        {/* Right: Metrics Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="group rounded-2xl bg-gray-50/50 border border-gray-100 p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Fill Depth</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-gray-900">{reading.distance_cm}</span>
-              <span className="text-sm font-medium text-gray-500 uppercase">cm</span>
-            </div>
-          </div>
-
-          <div className="group rounded-2xl bg-gray-50/50 border border-gray-100 p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Air Quality</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-gray-900">{reading.gas_raw}</span>
-              <span className="text-sm font-medium text-gray-500 uppercase">raw</span>
-            </div>
-          </div>
-
-          <div className="col-span-2 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 p-5 shadow-lg shadow-blue-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-blue-100 uppercase tracking-wider">Device ID</p>
-                <p className="mt-1 text-xl font-black text-white">#000{reading.bin_id}</p>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
-              </div>
+        {/* Center Text */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+          <div className="text-center bg-white/20 backdrop-blur-md rounded-full px-6 py-4 border border-white/30 shadow-xl">
+            <div className="text-5xl font-black text-secondary tracking-tighter">
+              <AnimatedNumber value={percent} />
+              <span className="text-2xl ml-1 opacity-60">%</span>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <div className="mt-10 grid grid-cols-2 gap-6 w-full z-10">
+        <motion.div 
+          whileHover={{ scale: 1.05 }}
+          className="bg-white/60 backdrop-blur-sm p-5 rounded-[2rem] border border-white/40 text-center shadow-sm"
+        >
+          <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest block mb-2">Hacim</span>
+          <div className="text-lg font-bold text-secondary">50L</div>
+        </motion.div>
+        <motion.div 
+          whileHover={{ scale: 1.05 }}
+          className="bg-white/60 backdrop-blur-sm p-5 rounded-[2rem] border border-white/40 text-center shadow-sm"
+        >
+          <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest block mb-2">Doluluk</span>
+          <div className={cn("text-lg font-bold", getStatusColor())}>
+            {Math.round(50 * (percent / 100))}L
+          </div>
+        </motion.div>
+      </div>
+    </motion.div>
   );
 }

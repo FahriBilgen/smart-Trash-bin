@@ -1,1 +1,0 @@
-const char* serverUrl = "http://172.20.10.3:8000/api/device/readings";

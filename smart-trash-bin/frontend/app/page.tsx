@@ -1,10 +1,16 @@
-// Sorumlu: Fahri
-// FAHRI - Dashboard ana sayfasi
-// Bu sayfa artik client tarafinda calisan LiveDashboard componentini gosteriyor.
-// Veriler refresh atmadan otomatik yenilenir.
+"use client";
 
-import LiveDashboard from "../components/LiveDashboard";
+import LiveDashboard from "@/components/LiveDashboard";
+import { motion } from "framer-motion";
 
 export default function Home() {
-  return <LiveDashboard />;
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
+      <LiveDashboard />
+    </motion.div>
+  );
 }

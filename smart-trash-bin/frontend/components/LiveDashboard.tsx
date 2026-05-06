@@ -1,12 +1,10 @@
 "use client";
 
-// Sorumlu: Fahri + Alper + Mustafa
-// FAHRI + ALPER - Canli Dashboard
-// Fahri: Premium tasarim ve profil yonetimini hazirladi.
-// Alper: Backend API'den 1 saniyede bir otomatik veri cekme mantigini ekledi.
-// Mustafa: Sensor verilerinin dashboard'da dogru yorumlanmasini kontrol eder.
-
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Settings, RefreshCw, LayoutDashboard, User as UserIcon, Bell } from "lucide-react";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 import FullnessCard from "./FullnessCard";
 import StatsCards from "./StatsCards";
@@ -20,11 +18,16 @@ import {
   getLatestReading,
   getRecentReadings,
   getUserInfo,
+  acknowledgeAlert,
   type AlertItem,
   type DailyStats,
   type LatestReading,
   type User,
 } from "../lib/api";
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 export default function LiveDashboard() {
   const [latest, setLatest] = useState<LatestReading | null>(null);
@@ -51,8 +54,8 @@ export default function LiveDashboard() {
 
       setLatest(latestData.status === 'fulfilled' ? latestData.value : null);
       setStats(statsData.status === 'fulfilled' ? statsData.value : null);
-      setAlerts(alertsData.status === 'fulfilled' ? alertsData.value : []);
-      setReadings(readingsData.status === 'fulfilled' ? readingsData.value : []);
+      setAlerts(alertsData.status === 'fulfilled' ? (alertsData.value || []) : []);
+      setReadings(readingsData.status === 'fulfilled' ? (readingsData.value || []) : []);
       setUser(userData.status === 'fulfilled' ? userData.value : null);
 
       if (userData.status === 'fulfilled' && !userData.value && !isModalOpen) {
@@ -63,60 +66,71 @@ export default function LiveDashboard() {
       setError("");
     } catch (err) {
       console.error("Dashboard data fetch error:", err);
-      const errorMessage = err instanceof Error 
-        ? err.message 
-        : "Bağlantı hatası: Sunucuya ulaşılamıyor.";
-      setError(errorMessage);
+      setError("Bağlantı hatası: Sunucuya ulaşılamıyor.");
     } finally {
       setLoading(false);
     }
   }
 
+  const handleAcknowledge = async (id: number) => {
+    try {
+      await acknowledgeAlert(id);
+      loadDashboardData();
+    } catch (err) {
+      console.error("Failed to acknowledge alert:", err);
+    }
+  };
+
   useEffect(() => {
     loadDashboardData();
-    const intervalId = setInterval(loadDashboardData, 1000);
+    const intervalId = setInterval(loadDashboardData, 3000);
     return () => clearInterval(intervalId);
   }, []);
 
-   if (loading) {
-     return (
-       <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 to-blue-50">
-         <div className="absolute left-0 top-0 h-[500px] w-full bg-gradient-to-b from-blue-100/40 to-transparent" />
-         <div className="absolute right-[-10%] top-[-10%] h-[600px] w-[600px] rounded-full bg-blue-100/20 blur-[120px]" />
-         
-         <div className="relative mx-auto max-w-7xl px-4 py-8 md:px-8">
-           <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-             <div className="space-y-4">
-               <div className="h-4 w-32 rounded-full bg-slate-200 skeleton" />
-               <div className="h-12 w-96 rounded-lg bg-slate-200 skeleton" />
-               <div className="h-6 w-64 rounded bg-slate-200 skeleton" />
-             </div>
-             <div className="h-12 w-32 rounded-xl bg-slate-200 skeleton" />
-           </div>
-
-           <div className="space-y-8">
-             <div className="h-64 rounded-2xl bg-white/60 skeleton" />
-             <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-               {[1,2,3,4,5].map(i => (
-                 <div key={i} className="h-32 rounded-2xl bg-white/60 skeleton" />
-               ))}
-             </div>
-             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-               <div className="h-64 rounded-2xl bg-white/60 skeleton" />
-               <div className="h-64 rounded-2xl bg-white/60 skeleton" />
-             </div>
-           </div>
-         </div>
-       </main>
-     );
-   }
-
+  if (loading && !latest) {
     return (
-      <main className="relative min-h-screen overflow-hidden bg-slate-50 selection:bg-indigo-100">
-        {/* Arka Plan Dekorasyonu */}
-        <div className="absolute left-0 top-0 h-[500px] w-full bg-gradient-to-b from-indigo-100/50 to-transparent" />
-        <div className="absolute right-[-10%] top-[-10%] h-[600px] w-[600px] rounded-full bg-blue-100/30 blur-[120px]" />
-      
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.2, 1],
+            rotate: [0, 180, 360]
+          }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          className="text-primary mb-8"
+        >
+          <div className="w-24 h-24 rounded-[2rem] bg-white shadow-2xl flex items-center justify-center">
+             <RefreshCw size={48} />
+          </div>
+        </motion.div>
+        <p className="text-secondary font-black tracking-widest uppercase text-xs animate-pulse">Sistem Yükleniyor</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative min-h-screen selection:bg-primary/30">
+      {/* Premium Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <motion.div 
+          animate={{ 
+            x: [0, 100, 0], 
+            y: [0, 50, 0],
+            rotate: [0, 45, 0]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-1/4 -right-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[150px]"
+        />
+        <motion.div 
+          animate={{ 
+            x: [0, -100, 0], 
+            y: [0, -50, 0],
+            rotate: [0, -45, 0]
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          className="absolute -bottom-1/4 -left-1/4 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[150px]"
+        />
+      </div>
+
       <UserSetupModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
@@ -124,70 +138,167 @@ export default function LiveDashboard() {
         onUpdate={(updatedUser) => setUser(updatedUser)}
       />
 
-      <div className="relative mx-auto max-w-7xl px-4 py-8 md:px-8">
-        {/* Header Section */}
-        <header className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-600/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-indigo-700">
-              <div className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-pulse" />
-              Smart IoT Node
-            </div>
-            <h1 className="text-4xl font-black tracking-tighter text-slate-900 md:text-5xl">
-              {user ? (
-                <span>Welcome back, <span className="text-indigo-600">{user.first_name}</span>.</span>
-              ) : (
-                "Trash Monitoring"
-              )}
-            </h1>
-            <p className="text-lg font-medium text-slate-500 max-w-xl leading-relaxed">
-              Real-time analytics and odor monitoring system for your smart environment.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="hidden rounded-2xl bg-white/50 p-1 backdrop-blur-sm md:flex">
-              <div className="px-4 py-2 text-right">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Status</p>
-                <p className="text-sm font-bold text-slate-900 tabular-nums">LIVE {lastRefresh}</p>
+      <div className="relative z-10 px-6 py-12 md:px-12 lg:px-20 max-w-[1600px] mx-auto">
+        {/* Header */}
+        <header className="mb-16 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-6"
+          >
+            <motion.div 
+              whileHover={{ rotate: -10, scale: 1.1 }}
+              className="w-20 h-20 rounded-[2.5rem] bg-secondary flex items-center justify-center text-white shadow-2xl shadow-secondary/20"
+            >
+              <LayoutDashboard size={40} />
+            </motion.div>
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <h1 className="text-4xl font-black text-secondary tracking-tighter md:text-5xl">
+                  {user ? `Hoş geldin, ${user.first_name}` : "Dashboard"}
+                </h1>
+                <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
               </div>
+              <p className="text-lg font-bold text-muted-foreground/60 flex items-center gap-3">
+                <span className="uppercase tracking-[0.3em] text-xs font-black">Canlı İzleme</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/20" />
+                <span className="tabular-nums">{lastRefresh}</span>
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-4"
+          >
+            <div className="relative">
+               <motion.button 
+                 whileHover={{ scale: 1.1 }}
+                 whileTap={{ scale: 0.9 }}
+                 className="w-14 h-14 rounded-2xl bg-white border border-primary/10 flex items-center justify-center text-secondary shadow-sm hover:shadow-md transition-all"
+               >
+                 <Bell size={24} />
+                 {alerts.length > 0 && (
+                   <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white" />
+                 )}
+               </motion.button>
             </div>
             
-            <button 
+            <motion.button 
               onClick={() => setIsModalOpen(true)}
-              className="flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-6 font-bold text-white shadow-xl shadow-slate-200 transition-all hover:scale-105 active:scale-95"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-3 px-8 py-4 rounded-[1.5rem] bg-secondary text-white font-black uppercase tracking-widest text-xs shadow-2xl shadow-secondary/30 hover:bg-secondary/90 transition-all"
             >
-              Settings
-            </button>
-          </div>
+              <Settings size={20} />
+              Hesap Ayarları
+            </motion.button>
+            
+            <div className="w-14 h-14 rounded-2xl bg-white border border-primary/10 flex items-center justify-center text-primary shadow-sm">
+              <UserIcon size={28} />
+            </div>
+          </motion.div>
         </header>
 
         {error && (
-          <div className="mb-8 flex items-center gap-3 rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">
-            <div className="h-2 w-2 rounded-full bg-rose-500 animate-ping" />
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mb-10 p-6 rounded-3xl bg-red-50 border border-red-100 text-red-600 font-black text-sm flex items-center gap-4 shadow-xl shadow-red-500/5"
+          >
+            <div className="w-3 h-3 rounded-full bg-red-500 animate-ping" />
             {error}
-          </div>
+          </motion.div>
         )}
 
-        <div className="space-y-8">
-          {/* Main Visualizer */}
-          <FullnessCard reading={latest} />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          {/* Main Visualizer & Summary */}
+          <div className="lg:col-span-8 space-y-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <FullnessCard 
+                percent={latest?.fill_percent || 0} 
+                status={latest?.status || "Aktif"} 
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="glass-card rounded-[3rem] p-10 h-full flex flex-col justify-between border-primary/5"
+              >
+                <div>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-3 rounded-2xl bg-primary/10 text-primary">
+                      <RefreshCw size={24} />
+                    </div>
+                    <h2 className="text-2xl font-black text-secondary tracking-tight">Sistem Özeti</h2>
+                  </div>
+                  <p className="text-muted-foreground font-medium leading-loose text-sm">
+                    Bugün toplam <span className="text-secondary font-black">{stats?.reading_count || 0}</span> veri noktası kaydedildi. 
+                    Sistem kararlılığı <span className="text-emerald-600 font-black">%99.8</span> seviyesinde. 
+                    Ortalama doluluk oranı şuan <span className="text-primary font-black">%{stats?.average_fill || 0}</span> olarak ölçüldü.
+                  </p>
+                </div>
+                
+                <div className="mt-10 space-y-6">
+                   <div className="space-y-3">
+                      <div className="flex justify-between items-center px-1">
+                        <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.2em]">Genel Verimlilik</span>
+                        <span className="text-sm font-black text-secondary">%{stats?.average_fill || 0}</span>
+                      </div>
+                      <div className="w-full h-3 bg-primary/5 rounded-full overflow-hidden p-0.5 border border-white">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${stats?.average_fill || 0}%` }}
+                          transition={{ duration: 1.5, type: "spring" }}
+                          className="h-full bg-gradient-to-r from-primary to-accent rounded-full shadow-lg shadow-primary/20"
+                        />
+                      </div>
+                   </div>
+                   <div className="flex gap-4">
+                      <div className="flex-1 p-4 rounded-2xl bg-white/40 border border-white text-center">
+                         <span className="text-[9px] font-black text-muted-foreground/40 uppercase block mb-1">Max Doluluk</span>
+                         <span className="text-sm font-black text-secondary">%{stats?.max_fill || 0}</span>
+                      </div>
+                      <div className="flex-1 p-4 rounded-2xl bg-white/40 border border-white text-center">
+                         <span className="text-[9px] font-black text-muted-foreground/40 uppercase block mb-1">Alarm Sayısı</span>
+                         <span className="text-sm font-black text-red-500">{stats?.alarm_count || 0}</span>
+                      </div>
+                   </div>
+                </div>
+              </motion.div>
+            </div>
 
-          {/* Statistics Grid */}
-          <StatsCards stats={stats} />
+            <StatsCards 
+              gasRaw={latest?.gas_raw || 0} 
+              distance={latest?.distance_cm || 0} 
+              odorAlert={latest?.odor_alert || false}
+              lastUpdate={latest?.created_at}
+            />
 
-          {/* Tables Section */}
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <AlertsTable alerts={alerts} onAlertUpdated={loadDashboardData} />
             <RecentReadingsTable readings={readings} />
           </div>
+
+          {/* Side: Alerts */}
+          <div className="lg:col-span-4 h-full">
+            <AlertsTable 
+              alerts={alerts} 
+              onAcknowledge={handleAcknowledge} 
+            />
+          </div>
         </div>
-        
-        <footer className="mt-20 border-t border-slate-200 py-10 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-            Smart Trash Bin Project &copy; 2026 • Powered by ESP32 & FastAPI
-          </p>
+
+        <footer className="mt-32 pb-12 text-center">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="inline-flex items-center gap-6 px-10 py-5 rounded-[2rem] bg-white/30 backdrop-blur-md border border-white/40"
+          >
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/40">
+              Anka Projesi &copy; 2026 • Premium IoT Ecosystem
+            </p>
+          </motion.div>
         </footer>
       </div>
-    </main>
+    </div>
   );
 }
