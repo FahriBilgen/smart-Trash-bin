@@ -42,86 +42,149 @@ export type User = {
   created_at: string;
 };
 
+class ApiError extends Error {
+  constructor(
+    message: string,
+    public status?: number,
+    public endpoint?: string
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+function createAbortController(timeoutMs: number = 10000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  return { controller, timeoutId };
+}
+
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit = {},
+  maxRetries: number = 2
+): Promise<Response> {
+  let lastError: Error | undefined;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const { controller, timeoutId } = createAbortController(10000);
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+          ...options.headers,
+        },
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        throw new ApiError(errorMessage, response.status, url);
+      }
+
+      return response;
+    } catch (error) {
+      lastError = error as Error;
+      if (attempt === maxRetries) break;
+
+      await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+    }
+  }
+
+  throw lastError;
+}
+
 export async function getLatestReading(): Promise<LatestReading | null> {
-  const response = await fetch(`${API_BASE_URL}/api/dashboard/latest`, {
-    cache: "no-store",
-  });
+  try {
+    const response = await fetchWithRetry(`${API_BASE_URL}/api/dashboard/latest`);
+    const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error("Latest reading could not be fetched");
+    if (data.data === null || data.data === undefined) {
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error(`Failed to fetch latest reading: ${error.message}`);
+    }
+    throw error;
   }
-
-  const data = await response.json();
-
-  if (data.data === null) {
-    return null;
-  }
-
-  return data;
 }
 
 export async function getRecentReadings(): Promise<LatestReading[]> {
-  const response = await fetch(`${API_BASE_URL}/api/readings/recent?limit=20`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Recent readings could not be fetched");
+  try {
+    const response = await fetchWithRetry(
+      `${API_BASE_URL}/api/readings/recent?limit=20`
+    );
+    return response.json();
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error(`Failed to fetch recent readings: ${error.message}`);
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function getAlerts(): Promise<AlertItem[]> {
-  const response = await fetch(`${API_BASE_URL}/api/alerts?limit=20`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Alerts could not be fetched");
+  try {
+    const response = await fetchWithRetry(
+      `${API_BASE_URL}/api/alerts?limit=20`
+    );
+    return response.json();
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error(`Failed to fetch alerts: ${error.message}`);
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function getDailyStats(): Promise<DailyStats> {
-  const response = await fetch(`${API_BASE_URL}/api/stats/daily`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Daily stats could not be fetched");
+  try {
+    const response = await fetchWithRetry(
+      `${API_BASE_URL}/api/stats/daily`
+    );
+    return response.json();
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error(`Failed to fetch daily stats: ${error.message}`);
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function acknowledgeAlert(alertId: number) {
-  const response = await fetch(
-    `${API_BASE_URL}/api/alerts/${alertId}/acknowledge`,
-    {
-      method: "PATCH",
+  try {
+    const response = await fetchWithRetry(
+      `${API_BASE_URL}/api/alerts/${alertId}/acknowledge`,
+      { method: "PATCH" }
+    );
+    return response.json();
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error(`Failed to acknowledge alert ${alertId}: ${error.message}`);
     }
-  );
-
-  if (!response.ok) {
-    throw new Error("Alert could not be acknowledged");
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function getUserInfo(): Promise<User | null> {
-  const response = await fetch(`${API_BASE_URL}/api/user`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    return null;
+  try {
+    const response = await fetchWithRetry(`${API_BASE_URL}/api/user`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      if (error.status === 404) {
+        return null;
+      }
+      console.error(`Failed to fetch user info: ${error.message}`);
+    }
+    throw error;
   }
-
-  const data = await response.json();
-  return data;
 }
 
 export async function updateUserInfo(userData: {
@@ -129,17 +192,16 @@ export async function updateUserInfo(userData: {
   first_name: string;
   last_name: string;
 }): Promise<User> {
-  const response = await fetch(`${API_BASE_URL}/api/user`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  });
-
-  if (!response.ok) {
-    throw new Error("User info could not be updated");
+  try {
+    const response = await fetchWithRetry(`${API_BASE_URL}/api/user`, {
+      method: "POST",
+      body: JSON.stringify(userData),
+    });
+    return response.json();
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error(`Failed to update user info: ${error.message}`);
+    }
+    throw error;
   }
-
-  return response.json();
 }

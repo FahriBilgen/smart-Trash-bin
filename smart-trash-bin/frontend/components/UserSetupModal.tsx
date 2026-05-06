@@ -43,59 +43,87 @@ export default function UserSetupModal({ isOpen, onClose, currentUser, onUpdate 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
-        <h2 className="text-2xl font-bold text-gray-800">
-          {currentUser ? "Account Settings" : "Welcome to Smart Trash Bin"}
-        </h2>
-        <p className="mt-2 text-gray-600">
-          Please enter your details. Alert notifications will be sent to this email address.
-        </p>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm transition-opacity">
+      <div className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 shadow-2xl transition-all">
+        <div className="mb-6 flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
+            <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">First Name</label>
+            <h2 className="text-xl font-bold text-gray-900">
+              {currentUser ? "Account Settings" : "Welcome to Smart Trash Bin"}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {currentUser ? "Update your profile" : "Complete your profile setup"}
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-gray-700">First Name</label>
             <input
               type="text"
               required
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               placeholder="Fahri"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Last Name</label>
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-gray-700">Last Name</label>
             <input
               type="text"
               required
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               placeholder="Soyad"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email Address</label>
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-gray-700">Email Address</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               placeholder="example@gmail.com"
             />
+            <p className="text-xs text-gray-500">Alert notifications will be sent to this address</p>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:bg-blue-400"
-          >
-            {loading ? "Saving..." : "Save and Continue"}
-          </button>
+          <div className="flex gap-3 pt-2">
+            {currentUser && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400 disabled:hover:bg-blue-400"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Saving...
+                </span>
+              ) : (
+                "Save and Continue"
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>

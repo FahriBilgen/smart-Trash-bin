@@ -41,7 +41,7 @@ export default function LiveDashboard() {
   async function loadDashboardData() {
     try {
       const [latestData, statsData, alertsData, readingsData, userData] =
-        await Promise.all([
+        await Promise.allSettled([
           getLatestReading(),
           getDailyStats(),
           getAlerts(),
@@ -49,20 +49,24 @@ export default function LiveDashboard() {
           getUserInfo(),
         ]);
 
-      setLatest(latestData);
-      setStats(statsData);
-      setAlerts(alertsData);
-      setReadings(readingsData);
-      setUser(userData);
-      
-      if (!userData && !isModalOpen) {
+      setLatest(latestData.status === 'fulfilled' ? latestData.value : null);
+      setStats(statsData.status === 'fulfilled' ? statsData.value : null);
+      setAlerts(alertsData.status === 'fulfilled' ? alertsData.value : []);
+      setReadings(readingsData.status === 'fulfilled' ? readingsData.value : []);
+      setUser(userData.status === 'fulfilled' ? userData.value : null);
+
+      if (!userData.value && !isModalOpen) {
         setIsModalOpen(true);
       }
 
       setLastRefresh(new Date().toLocaleTimeString());
+      setError("");
     } catch (err) {
       console.error("Dashboard data fetch error:", err);
-      setError("Bağlantı hatası: Sunucuya ulaşılamıyor.");
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : "Bağlantı hatası: Sunucuya ulaşılamıyor.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -74,7 +78,38 @@ export default function LiveDashboard() {
     return () => clearInterval(intervalId);
   }, []);
 
-  return (
+  if (loading) {
+    return (
+      <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="absolute left-0 top-0 h-[500px] w-full bg-gradient-to-b from-blue-100/40 to-transparent" />
+        <div className="absolute right-[-10%] top-[-10%] h-[600px] w-[600px] rounded-full bg-blue-100/20 blur-[120px]" />
+        
+        <div className="relative mx-auto max-w-7xl px-4 py-8 md:px-8">
+          <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div className="space-y-4">
+              <div className="h-4 w-32 rounded-full bg-slate-200 skeleton" />
+              <div className="h-12 w-96 rounded-lg bg-slate-200 skeleton" />
+              <div className="h-6 w-64 rounded bg-slate-200 skeleton" />
+            </div>
+            <div className="h-12 w-32 rounded-xl bg-slate-200 skeleton" />
+          </div>
+
+          <div className="space-y-8">
+            <div className="h-64 rounded-2xl bg-white/60 skeleton" />
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+              {[1,2,3,4,5].map(i => (
+                <div key={i} className="h-32 rounded-2xl bg-white/60 skeleton" />
+              ))}
+            </div>
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <div className="h-64 rounded-2xl bg-white/60 skeleton" />
+              <div className="h-64 rounded-2xl bg-white/60 skeleton" />
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
     <main className="relative min-h-screen overflow-hidden bg-slate-50 selection:bg-indigo-100">
       {/* Arka Plan Dekorasyonu */}
       <div className="absolute left-0 top-0 h-[500px] w-full bg-gradient-to-b from-indigo-100/50 to-transparent" />
