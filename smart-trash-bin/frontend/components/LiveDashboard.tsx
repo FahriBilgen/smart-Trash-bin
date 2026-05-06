@@ -202,7 +202,7 @@ export default function LiveDashboard() {
                   </div>
                </div>
                <div className="space-y-6">
-                  <h3 className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.4em]">Aktif Alarmlar</h3>
+                  <h3 className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.4em]">Günlük Toplam Olay</h3>
                   <div className="p-10 rounded-[3rem] bg-secondary text-white flex flex-col items-center justify-center text-center shadow-2xl shadow-secondary/10">
                      <div className="text-5xl font-black tracking-tighter mb-2">
                         {stats?.alarm_count || 0}

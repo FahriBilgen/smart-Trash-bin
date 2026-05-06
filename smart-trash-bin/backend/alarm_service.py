@@ -15,7 +15,7 @@ import email_service
 # Ayni alarm tipi icin 5 dakika cooldown uyguluyorum.
 # Cooldown uygunsa e-posta bildirimi de gonderiyorum.
 
-ALARM_COOLDOWN_MINUTES = 5
+ALARM_COOLDOWN_MINUTES = 1
 
 
 def can_create_alert(db: Session, bin_id: int, alert_type: str) -> bool:
@@ -51,16 +51,20 @@ def create_alert_and_send_email(
 
     # Cop kutusunun sahibinin mail adresini bul
     owner_email = crud.get_bin_owner_email(db, bin_id)
+    
+    # Eger sahip kaydedilmemisse .env'deki varsayilan adrese gönder
+    import os
+    target_email = owner_email or os.getenv("ALERT_EMAIL_TO")
 
     email_sent = False
-    if owner_email:
+    if target_email:
         email_sent = email_service.send_alert_email(
-            to_email=owner_email,
+            to_email=target_email,
             alert_type=alert_type,
             message=message
         )
     else:
-        print(f"Uyari: Bin ID {bin_id} icin sahip mail adresi bulunamadi.")
+        print(f"Uyari: Bin ID {bin_id} icin hicbir mail adresi (sahip veya varsayilan) bulunamadi.")
 
     return {
         "alert": alert,

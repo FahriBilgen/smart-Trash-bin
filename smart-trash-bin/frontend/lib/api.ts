@@ -72,6 +72,7 @@ async function fetchWithRetry(
       const response = await fetch(url, {
         ...options,
         signal: controller.signal,
+        cache: 'no-store', // Verinin cache'lenmesini engelle
         headers: {
           "Content-Type": "application/json",
           ...options.headers,
