@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Gauge, Wind, Clock, Activity, ShieldCheck, Signal } from "lucide-react";
+import { Gauge, Wind, Clock, Activity } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import AnimatedNumber from "./AnimatedNumber";
@@ -51,18 +51,10 @@ export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: 
     {
       title: "Veri Gecikmesi",
       value: lastUpdate ? lastUpdate.split(':')[1] : 0,
-      unit: "MS",
+      unit: "SN",
       icon: Clock,
       color: "text-secondary",
       desc: "Senkronizasyon"
-    },
-    {
-      title: "Bağlantı",
-      value: "98",
-      unit: "%",
-      icon: Signal,
-      color: "text-emerald-500",
-      desc: "Sinyal Gücü"
     }
   ];
 
@@ -71,7 +63,7 @@ export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: 
       variants={container}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+      className="grid grid-cols-1 sm:grid-cols-3 gap-8"
     >
       {stats.map((stat, index) => (
         <motion.div
