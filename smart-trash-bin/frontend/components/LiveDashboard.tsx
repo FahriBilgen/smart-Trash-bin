@@ -55,7 +55,7 @@ export default function LiveDashboard() {
       setReadings(readingsData.status === 'fulfilled' ? readingsData.value : []);
       setUser(userData.status === 'fulfilled' ? userData.value : null);
 
-      if (!userData.value && !isModalOpen) {
+      if (userData.status === 'fulfilled' && !userData.value && !isModalOpen) {
         setIsModalOpen(true);
       }
 
@@ -78,42 +78,44 @@ export default function LiveDashboard() {
     return () => clearInterval(intervalId);
   }, []);
 
-  if (loading) {
-    return (
-      <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="absolute left-0 top-0 h-[500px] w-full bg-gradient-to-b from-blue-100/40 to-transparent" />
-        <div className="absolute right-[-10%] top-[-10%] h-[600px] w-[600px] rounded-full bg-blue-100/20 blur-[120px]" />
-        
-        <div className="relative mx-auto max-w-7xl px-4 py-8 md:px-8">
-          <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div className="space-y-4">
-              <div className="h-4 w-32 rounded-full bg-slate-200 skeleton" />
-              <div className="h-12 w-96 rounded-lg bg-slate-200 skeleton" />
-              <div className="h-6 w-64 rounded bg-slate-200 skeleton" />
-            </div>
-            <div className="h-12 w-32 rounded-xl bg-slate-200 skeleton" />
-          </div>
+   if (loading) {
+     return (
+       <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 to-blue-50">
+         <div className="absolute left-0 top-0 h-[500px] w-full bg-gradient-to-b from-blue-100/40 to-transparent" />
+         <div className="absolute right-[-10%] top-[-10%] h-[600px] w-[600px] rounded-full bg-blue-100/20 blur-[120px]" />
+         
+         <div className="relative mx-auto max-w-7xl px-4 py-8 md:px-8">
+           <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+             <div className="space-y-4">
+               <div className="h-4 w-32 rounded-full bg-slate-200 skeleton" />
+               <div className="h-12 w-96 rounded-lg bg-slate-200 skeleton" />
+               <div className="h-6 w-64 rounded bg-slate-200 skeleton" />
+             </div>
+             <div className="h-12 w-32 rounded-xl bg-slate-200 skeleton" />
+           </div>
 
-          <div className="space-y-8">
-            <div className="h-64 rounded-2xl bg-white/60 skeleton" />
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-              {[1,2,3,4,5].map(i => (
-                <div key={i} className="h-32 rounded-2xl bg-white/60 skeleton" />
-              ))}
-            </div>
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <div className="h-64 rounded-2xl bg-white/60 skeleton" />
-              <div className="h-64 rounded-2xl bg-white/60 skeleton" />
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
-    <main className="relative min-h-screen overflow-hidden bg-slate-50 selection:bg-indigo-100">
-      {/* Arka Plan Dekorasyonu */}
-      <div className="absolute left-0 top-0 h-[500px] w-full bg-gradient-to-b from-indigo-100/50 to-transparent" />
-      <div className="absolute right-[-10%] top-[-10%] h-[600px] w-[600px] rounded-full bg-blue-100/30 blur-[120px]" />
+           <div className="space-y-8">
+             <div className="h-64 rounded-2xl bg-white/60 skeleton" />
+             <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+               {[1,2,3,4,5].map(i => (
+                 <div key={i} className="h-32 rounded-2xl bg-white/60 skeleton" />
+               ))}
+             </div>
+             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+               <div className="h-64 rounded-2xl bg-white/60 skeleton" />
+               <div className="h-64 rounded-2xl bg-white/60 skeleton" />
+             </div>
+           </div>
+         </div>
+       </main>
+     );
+   }
+
+    return (
+      <main className="relative min-h-screen overflow-hidden bg-slate-50 selection:bg-indigo-100">
+        {/* Arka Plan Dekorasyonu */}
+        <div className="absolute left-0 top-0 h-[500px] w-full bg-gradient-to-b from-indigo-100/50 to-transparent" />
+        <div className="absolute right-[-10%] top-[-10%] h-[600px] w-[600px] rounded-full bg-blue-100/30 blur-[120px]" />
       
       <UserSetupModal 
         isOpen={isModalOpen} 
