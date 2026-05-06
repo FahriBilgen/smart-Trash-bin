@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Gauge, Wind, Clock, Activity, ShieldCheck } from "lucide-react";
+import { Gauge, Wind, Clock, Activity, ShieldCheck, Signal } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import AnimatedNumber from "./AnimatedNumber";
@@ -21,15 +21,13 @@ const container = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
+    transition: { staggerChildren: 0.1 }
   }
 } as const;
 
 const item = {
-  hidden: { opacity: 0, scale: 0.9, y: 20 },
-  show: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
 } as const;
 
 export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: StatsCardsProps) {
@@ -37,35 +35,34 @@ export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: 
     {
       title: "Hava Kalitesi",
       value: gasRaw,
-      unit: "Raw",
+      unit: "RAW",
       icon: Wind,
       color: odorAlert ? "text-red-500" : "text-primary",
-      bgColor: odorAlert ? "bg-red-50" : "bg-primary/5",
-      alert: odorAlert ? "Koku Tespiti!" : null
+      desc: odorAlert ? "Koku Tespiti" : "Normal Seviye"
     },
     {
       title: "Mesafe",
       value: distance,
-      unit: "cm",
+      unit: "CM",
       icon: Gauge,
-      color: "text-blue-500",
-      bgColor: "bg-blue-50"
+      color: "text-secondary",
+      desc: "Anlık Mesafe"
     },
     {
-      title: "Veri Akışı",
+      title: "Veri Gecikmesi",
       value: lastUpdate ? lastUpdate.split(':')[1] : 0,
-      unit: "sn",
+      unit: "MS",
       icon: Clock,
-      color: "text-purple-500",
-      bgColor: "bg-purple-50"
+      color: "text-secondary",
+      desc: "Senkronizasyon"
     },
     {
-      title: "Cihaz Durumu",
-      value: "AKTİF",
-      unit: "",
-      icon: ShieldCheck,
+      title: "Bağlantı",
+      value: "98",
+      unit: "%",
+      icon: Signal,
       color: "text-emerald-500",
-      bgColor: "bg-emerald-50"
+      desc: "Sinyal Gücü"
     }
   ];
 
@@ -74,63 +71,34 @@ export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: 
       variants={container}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
     >
       {stats.map((stat, index) => (
         <motion.div
           key={stat.title}
           variants={item}
-          whileHover={{ y: -8, scale: 1.02 }}
-          className="glass-card rounded-[2.5rem] p-7 group cursor-default relative overflow-hidden"
+          whileHover={{ y: -5 }}
+          className="relative p-8 rounded-[2.5rem] bg-white border border-border/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(45,36,30,0.05)] overflow-hidden"
         >
-          {/* Subtle Glow on Hover */}
-          <div className={cn(
-            "absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-gradient-to-br from-white to-transparent",
-            stat.bgColor
-          )} />
-
-          <div className="flex items-start justify-between mb-6 relative z-10">
-            <motion.div 
-              whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.5 }}
-              className={cn("p-4 rounded-2xl shadow-inner bg-white/80", stat.color)}
-            >
-              <stat.icon size={24} />
-            </motion.div>
-            {stat.alert && (
-              <motion.span 
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ repeat: Infinity, duration: 1 }}
-                className="px-3 py-1 bg-red-500 text-white text-[9px] font-black rounded-full uppercase tracking-tighter shadow-lg shadow-red-200"
-              >
-                {stat.alert}
-              </motion.span>
-            )}
-            {!stat.alert && (
-              <div className="p-2 rounded-full bg-emerald-50 text-emerald-500">
-                <Activity size={12} className="animate-pulse" />
-              </div>
-            )}
-          </div>
+          {/* Decorative Corner Element */}
+          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-[5rem] -mr-8 -mt-8 transition-transform group-hover:scale-110" />
           
-          <div className="relative z-10">
-            <p className="text-xs font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-2">{stat.title}</p>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-black text-secondary tracking-tighter">
-                {typeof stat.value === 'number' ? <AnimatedNumber value={stat.value} /> : stat.value}
-              </span>
-              <span className="text-sm font-bold text-muted-foreground/40">{stat.unit}</span>
+          <div className="relative z-10 flex flex-col h-full">
+            <div className={cn("mb-6 w-12 h-12 flex items-center justify-center rounded-2xl bg-muted/50 transition-colors", stat.color)}>
+              <stat.icon size={22} strokeWidth={1.5} />
             </div>
-          </div>
 
-          {/* Progress bar decoration */}
-          <div className="mt-4 w-full h-1 bg-primary/5 rounded-full overflow-hidden">
-             <motion.div 
-               initial={{ width: 0 }}
-               animate={{ width: "100%" }}
-               transition={{ duration: 2, delay: index * 0.2 }}
-               className={cn("h-full opacity-20", stat.color.replace('text', 'bg'))}
-             />
+            <div className="mt-auto">
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-4xl font-black text-secondary tracking-tighter leading-none">
+                  {typeof stat.value === 'number' ? <AnimatedNumber value={stat.value} /> : stat.value}
+                </span>
+                <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">{stat.unit}</span>
+              </div>
+              
+              <p className="text-[11px] font-black text-secondary uppercase tracking-[0.2em] mb-1">{stat.title}</p>
+              <p className="text-[10px] font-medium text-muted-foreground/60">{stat.desc}</p>
+            </div>
           </div>
         </motion.div>
       ))}

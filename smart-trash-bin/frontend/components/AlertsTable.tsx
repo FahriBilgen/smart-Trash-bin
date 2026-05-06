@@ -1,9 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { BellRing, CheckCircle, Trash2, Wind } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Bell, CheckCircle2, AlertCircle, Trash2, Clock } from "lucide-react";
 
-interface Alert {
+interface AlertItem {
   id: number;
   type: string;
   message: string;
@@ -12,88 +12,74 @@ interface Alert {
 }
 
 interface AlertsTableProps {
-  alerts: Alert[];
+  alerts: AlertItem[];
   onAcknowledge: (id: number) => void;
 }
 
 export default function AlertsTable({ alerts, onAcknowledge }: AlertsTableProps) {
+  const activeAlerts = alerts.filter((a) => !a.acknowledged);
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="glass-card rounded-[2.5rem] p-8 h-full"
-    >
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-orange-100 text-orange-600">
-            <BellRing size={20} />
-          </div>
-          <h3 className="text-xl font-bold text-secondary">Bildirimler</h3>
-        </div>
-        {alerts.length > 0 && (
-          <span className="px-2 py-0.5 bg-orange-500 text-white text-[10px] font-bold rounded-full">
-            {alerts.length} Yeni
-          </span>
-        )}
-      </div>
-
-      <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-        {alerts.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle size={32} />
+    <div className="space-y-8">
+      <AnimatePresence mode="popLayout">
+        {activeAlerts.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-16 rounded-[3rem] border border-dashed border-border/60 flex flex-col items-center justify-center text-center space-y-4"
+          >
+            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center">
+              <CheckCircle2 size={32} />
             </div>
-            <p className="text-muted-foreground text-sm font-medium">Her Şey Yolunda!</p>
-            <p className="text-xs text-muted-foreground/60">Yeni bildirim bulunmuyor.</p>
-          </div>
+            <div>
+               <h4 className="text-xl font-black text-secondary tracking-tight">Sistem Güvende</h4>
+               <p className="text-xs font-medium text-muted-foreground">Aktif bir uyarı veya sorun tespit edilmedi.</p>
+            </div>
+          </motion.div>
         ) : (
-          alerts.map((alert, index) => (
-            <motion.div
-              key={alert.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className={`p-4 rounded-2xl border flex items-start gap-4 transition-all group ${
-                alert.acknowledged ? 'bg-muted/30 border-transparent grayscale' : 'bg-white/50 border-white shadow-sm hover:shadow-md'
-              }`}
-            >
-              <div className={`p-2 rounded-xl shrink-0 ${
-                alert.type === 'odor' ? 'bg-purple-100 text-purple-600' : 'bg-red-100 text-red-600'
-              }`}>
-                {alert.type === 'odor' ? <Wind size={18} /> : <Trash2 size={18} />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-secondary truncate">{alert.message}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {new Date(alert.created_at).toLocaleString()}
-                </p>
-              </div>
-              {!alert.acknowledged && (
-                <button 
-                  onClick={() => onAcknowledge(alert.id)}
-                  className="p-2 rounded-lg bg-emerald-50 text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Onayla"
-                >
-                  <CheckCircle size={16} />
-                </button>
-              )}
-            </motion.div>
-          ))
-        )}
-      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {activeAlerts.map((alert) => (
+              <motion.div
+                layout
+                key={alert.id}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, x: 20 }}
+                className="relative p-8 rounded-[2.5rem] bg-white border border-border/50 shadow-sm overflow-hidden group"
+              >
+                {/* Status Indicator */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-bl-[5rem] -mr-8 -mt-8" />
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="p-3 rounded-2xl bg-red-50 text-red-500">
+                      <AlertCircle size={20} />
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">
+                      <Clock size={12} />
+                      {new Date(alert.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
 
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(212, 201, 181, 0.3);
-          border-radius: 10px;
-        }
-      `}</style>
-    </motion.div>
+                  <h4 className="text-lg font-black text-secondary tracking-tight mb-2">
+                    {alert.type === 'full' ? 'Kapasite Aşımı' : 'Koku Tespiti'}
+                  </h4>
+                  <p className="text-sm font-medium text-muted-foreground leading-relaxed mb-8">
+                    {alert.message}
+                  </p>
+
+                  <button
+                    onClick={() => onAcknowledge(alert.id)}
+                    className="w-full py-4 rounded-2xl bg-secondary text-white text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:bg-secondary/90 active:scale-95"
+                  >
+                    Bildirimi Onayla
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
