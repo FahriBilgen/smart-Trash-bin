@@ -45,7 +45,7 @@ export default function AlertsTable({ alerts, onAcknowledge }: AlertsTableProps)
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, x: 20 }}
-                className="relative p-8 rounded-[2.5rem] bg-white border border-border/50 shadow-sm overflow-hidden group"
+                className="relative p-6 md:p-8 rounded-[2.5rem] bg-white border border-border/50 shadow-sm overflow-hidden group"
               >
                 {}
                 <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-bl-[5rem] -mr-8 -mt-8" />

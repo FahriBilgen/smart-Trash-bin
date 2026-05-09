@@ -113,9 +113,9 @@ export default function LiveDashboard() {
         onUpdate={(updatedUser) => setUser(updatedUser)}
       />
 
-      <div className="relative z-10 px-8 py-16 md:px-20 lg:px-32 max-w-[1800px] mx-auto">
+      <div className="relative z-10 px-4 py-12 md:px-20 lg:px-32 max-w-[1800px] mx-auto">
         {}
-        <header className="mb-24 flex flex-col md:flex-row items-end justify-between gap-12">
+        <header className="mb-16 md:mb-24 flex flex-col md:flex-row items-start md:items-end justify-between gap-12">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -125,7 +125,7 @@ export default function LiveDashboard() {
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               Sistem Aktif • {lastRefresh}
             </div>
-            <h1 className="text-6xl md:text-8xl font-black text-secondary tracking-tighter leading-[0.85] mb-8 text-balance">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-secondary tracking-tighter leading-[0.85] mb-8 text-balance">
               Merhaba, <span className="text-primary">{user ? user.first_name : "Fahri"}</span> <br/> 
               Smart Dashboard
             </h1>
@@ -167,7 +167,7 @@ export default function LiveDashboard() {
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
           {}
           <div className="lg:col-span-5 h-full">
             <FullnessCard 
@@ -177,7 +177,7 @@ export default function LiveDashboard() {
           </div>
 
           {}
-          <div className="lg:col-span-7 space-y-24">
+          <div className="lg:col-span-7 space-y-16 md:space-y-24">
             <section>
               <div className="flex items-center justify-between mb-10">
                 <h2 className="text-2xl font-black text-secondary tracking-tighter uppercase tracking-[0.1em]">Anlık Metrikler</h2>
@@ -222,7 +222,7 @@ export default function LiveDashboard() {
         </div>
 
         {}
-        <section className="mt-32">
+        <section className="mt-20 md:mt-32">
           <div className="flex items-center justify-between mb-12">
             <h2 className="text-3xl font-black text-secondary tracking-tighter uppercase tracking-[0.1em]">Olay Kayıtları</h2>
             <div className="glass-pill">Kritik Bildirimler</div>

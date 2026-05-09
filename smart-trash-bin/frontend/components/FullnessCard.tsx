@@ -35,7 +35,7 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
       </div>
 
       {}
-      <div className="relative w-64 h-[450px]">
+      <div className="relative w-full max-w-[280px] h-[400px] md:h-[450px]">
         {}
         <div className={cn(
           "absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-10 blur-2xl rounded-full transition-colors",
@@ -101,18 +101,18 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 4, repeat: Infinity }}
           className={cn(
-            "absolute -left-12 top-1/4 w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center border transition-colors",
+            "absolute -left-6 md:-left-12 top-1/4 w-10 h-10 md:w-12 md:h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center border transition-colors",
             isOdor ? "text-red-500 border-red-200" : "text-primary border-white/80"
           )}
         >
-          {isOdor ? <AlertTriangle size={20} /> : <Trash2 size={20} />}
+          {isOdor ? <AlertTriangle size={18} /> : <Trash2 size={18} />}
         </motion.div>
         <motion.div 
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 5, repeat: Infinity, delay: 1 }}
-          className="absolute -right-12 bottom-1/4 w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-emerald-500 border border-white/80"
+          className="absolute -right-6 md:-right-12 bottom-1/4 w-10 h-10 md:w-12 md:h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-emerald-500 border border-white/80"
         >
-          <ShieldCheck size={20} />
+          <ShieldCheck size={18} />
         </motion.div>
       </div>
 

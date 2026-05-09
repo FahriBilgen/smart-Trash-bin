@@ -74,7 +74,7 @@ export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: 
           variants={item}
           whileHover={{ y: -5 }}
           className={cn(
-            "relative p-8 rounded-[2.5rem] border transition-all duration-500 overflow-hidden",
+            "relative p-6 md:p-8 rounded-[2.5rem] border transition-all duration-500 overflow-hidden",
             stat.isAlert 
               ? "bg-red-50 border-red-200 shadow-[0_20px_40px_rgba(239,68,68,0.1)]" 
               : "bg-white border-border/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(45,36,30,0.05)]"
