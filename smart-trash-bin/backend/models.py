@@ -1,4 +1,4 @@
-# Sorumlu: Mustafa
+
 
 from sqlalchemy import Column, Integer, Float, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.sql import func

@@ -2,10 +2,10 @@ import os
 import resend
 from dotenv import load_dotenv
 
-# Sorumlu: Alper
-# ALPER - Resend Email Service
-# Render standart SMTP portlarini (587, 465) engelledigi icin 
-# mail gonderimini HTTP API tabanli Resend servisine tasidik.
+
+
+
+
 
 load_dotenv()
 
@@ -27,9 +27,9 @@ def send_alert_email(to_email: str, alert_type: str, message: str) -> bool:
     try:
         print(f"DEBUG EMAIL: Resend API uzerinden {to_email} adresine mail gonderiliyor...")
         
-        # Resend uzerinden mail gonderimi
-        # Not: Ucretsiz planda sadece onaylanmis mail adreslerine gonderim yapilabilir.
-        # Genelde 'onboarding@resend.dev' uzerinden kendi mailinize gonderim yapmaniza izin verir.
+        
+        
+        
         
         params = {
             "from": "Smart Trash <onboarding@resend.dev>",

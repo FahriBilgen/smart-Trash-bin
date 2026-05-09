@@ -1,4 +1,4 @@
-# Sorumlu: Mustafa
+
 
 from datetime import datetime, date, time
 

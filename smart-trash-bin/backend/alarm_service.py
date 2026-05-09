@@ -9,11 +9,11 @@ import schemas
 import email_service
 
 
-# Sorumlu: Alper
-# ALPER - Alarm Service
-# Full veya odor_alert durumunda alarm olusturuyorum.
-# Ayni alarm tipi icin 5 dakika cooldown uyguluyorum.
-# Cooldown uygunsa e-posta bildirimi de gonderiyorum.
+
+
+
+
+
 
 ALARM_COOLDOWN_MINUTES = 1
 
@@ -49,10 +49,10 @@ def create_alert_and_send_email(
         message=message
     )
 
-    # Cop kutusunun sahibinin mail adresini bul
+    
     owner_email = crud.get_bin_owner_email(db, bin_id)
     
-    # Eger sahip kaydedilmemisse .env'deki varsayilan adrese gönder
+    
     import os
     target_email = owner_email or os.getenv("ALERT_EMAIL_TO")
 

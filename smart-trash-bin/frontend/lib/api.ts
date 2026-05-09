@@ -1,6 +1,6 @@
-// Sorumlu: Alper
-// ALPER - Backend API bağlantı adresleri
-// Frontend bu dosya üzerinden FastAPI backend'e istek atıyor.
+
+
+
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -72,7 +72,7 @@ async function fetchWithRetry(
       const response = await fetch(url, {
         ...options,
         signal: controller.signal,
-        cache: 'no-store', // Verinin cache'lenmesini engelle
+        cache: 'no-store', 
         headers: {
           "Content-Type": "application/json",
           ...options.headers,

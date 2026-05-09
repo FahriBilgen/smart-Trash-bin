@@ -1,4 +1,4 @@
-# Sorumlu: Alper + Mustafa
+
 
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
@@ -106,7 +106,7 @@ def acknowledge_alert(db: Session, alert_id: int):
 
 
 def get_user(db: Session):
-    # Bu proje icin tek bir kullanici oldugunu varsayiyoruz
+    
     return db.query(models.User).first()
 
 
@@ -128,7 +128,7 @@ def update_or_create_user(db: Session, user_data: schemas.UserCreate):
     db.commit()
     db.refresh(db_user)
     
-    # Varsayilan cop kutusunu bu kullaniciya bagla
+    
     bin = db.query(models.Bin).filter(models.Bin.id == 1).first()
     if bin:
         bin.owner_id = db_user.id

@@ -25,7 +25,7 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
       animate={{ opacity: 1, y: 0 }}
       className="relative flex flex-col items-center group h-full"
     >
-      {/* Label Pill */}
+      {}
       <div className={cn(
         "glass-pill mb-8 flex items-center gap-2 z-10 transition-colors",
         isOdor && "bg-red-500 text-white border-red-400"
@@ -34,23 +34,23 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
         <span>{isOdor ? "KRİTİK DURUM" : "Kapasite Analizi"}</span>
       </div>
 
-      {/* Main Vessel */}
+      {}
       <div className="relative w-64 h-[450px]">
-        {/* Vessel Shadow/Base */}
+        {}
         <div className={cn(
           "absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-10 blur-2xl rounded-full transition-colors",
           isOdor ? "bg-red-500/20" : "bg-secondary/10"
         )} />
         
-        {/* Glass Container */}
+        {}
         <div className={cn(
           "absolute inset-0 bg-white/30 backdrop-blur-3xl rounded-[4rem] border-[1px] shadow-[inset_0_0_40px_rgba(255,255,255,0.5)] overflow-hidden flex items-end transition-colors",
           isOdor ? "border-red-300 bg-red-50/20" : "border-white/80"
         )}>
-          {/* Inner Light/Glow */}
+          {}
           <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
           
-          {/* Liquid Vessel */}
+          {}
           <motion.div 
             className={cn(
               "absolute bottom-0 left-0 right-0 transition-colors duration-1000",
@@ -60,10 +60,10 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
             animate={{ height: `${percent}%` }}
             transition={{ type: "spring", stiffness: 30, damping: 15 }}
           >
-            {/* Top Surface Glow */}
+            {}
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-white/80 shadow-[0_0_20px_rgba(255,255,255,0.8)]" />
             
-            {/* Waves */}
+            {}
             <motion.div 
               animate={{ x: ["-25%", "25%"] }}
               transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
@@ -71,7 +71,7 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
             />
           </motion.div>
 
-          {/* Reading Center */}
+          {}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <motion.div 
               key={percent}
@@ -96,7 +96,7 @@ export default function FullnessCard({ percent, status }: FullnessCardProps) {
           </div>
         </div>
 
-        {/* Floating Icons around the vessel */}
+        {}
         <motion.div 
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 4, repeat: Infinity }}

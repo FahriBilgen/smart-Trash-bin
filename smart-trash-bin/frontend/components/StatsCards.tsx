@@ -80,7 +80,7 @@ export default function StatsCards({ gasRaw, distance, odorAlert, lastUpdate }: 
               : "bg-white border-border/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(45,36,30,0.05)]"
           )}
         >
-          {/* Decorative Corner Element */}
+          {}
           <div className={cn(
             "absolute top-0 right-0 w-24 h-24 rounded-bl-[5rem] -mr-8 -mt-8 transition-transform group-hover:scale-110",
             stat.isAlert ? "bg-red-500/10" : "bg-primary/5"

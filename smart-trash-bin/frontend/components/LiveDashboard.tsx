@@ -96,7 +96,7 @@ export default function LiveDashboard() {
           transition={{ duration: 2, repeat: Infinity }}
           className="text-primary font-black uppercase tracking-[0.5em] text-[10px]"
         >
-          Anka Sistemi Başlatılıyor
+          Sistem Hazırlanıyor...
         </motion.div>
       </div>
     );
@@ -114,7 +114,7 @@ export default function LiveDashboard() {
       />
 
       <div className="relative z-10 px-8 py-16 md:px-20 lg:px-32 max-w-[1800px] mx-auto">
-        {/* Header */}
+        {}
         <header className="mb-24 flex flex-col md:flex-row items-end justify-between gap-12">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -126,8 +126,8 @@ export default function LiveDashboard() {
               Sistem Aktif • {lastRefresh}
             </div>
             <h1 className="text-6xl md:text-8xl font-black text-secondary tracking-tighter leading-[0.85] mb-8 text-balance">
-              {user ? user.first_name : "Smart"} <br/> 
-              <span className="text-primary">Dashboard</span>
+              Merhaba, <span className="text-primary">{user ? user.first_name : "Fahri"}</span> <br/> 
+              Smart Dashboard
             </h1>
             <p className="text-lg font-medium text-muted-foreground max-w-md leading-relaxed">
               IoT tabanlı akıllı kova sistemi üzerinden gelen verilerin anlık analiz ve izleme paneli.
@@ -168,7 +168,7 @@ export default function LiveDashboard() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
-          {/* Main Visualizer */}
+          {}
           <div className="lg:col-span-5 h-full">
             <FullnessCard 
               percent={latest?.fill_percent || 0} 
@@ -176,7 +176,7 @@ export default function LiveDashboard() {
             />
           </div>
 
-          {/* Stats & Tables */}
+          {}
           <div className="lg:col-span-7 space-y-24">
             <section>
               <div className="flex items-center justify-between mb-10">
@@ -221,7 +221,7 @@ export default function LiveDashboard() {
           </div>
         </div>
 
-        {/* Alerts Section - Full Width at bottom for a high-end feel */}
+        {}
         <section className="mt-32">
           <div className="flex items-center justify-between mb-12">
             <h2 className="text-3xl font-black text-secondary tracking-tighter uppercase tracking-[0.1em]">Olay Kayıtları</h2>
@@ -235,7 +235,7 @@ export default function LiveDashboard() {
 
         <footer className="mt-48 pb-12 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-border/40 pt-12">
           <div className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30">
-            ANKA PROJESI • SMART TRASH SYSTEM
+            SMART TRASH BIN SYSTEM
           </div>
           <div className="flex gap-8">
              <span className="text-[10px] font-black uppercase tracking-widest text-secondary/40">v1.2.0</span>
