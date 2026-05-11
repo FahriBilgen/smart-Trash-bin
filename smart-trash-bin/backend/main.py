@@ -79,20 +79,21 @@ def create_device_reading(
     }
 
 
-@app.get("/api/dashboard/latest")
+@app.get("/api/dashboard/latest", response_model=schemas.ReadingResponse | dict)
+@app.get("/dashboard/latest", response_model=schemas.ReadingResponse | dict)
 def get_dashboard_latest(db: Session = Depends(get_db)):
     latest = crud.get_latest_reading(db)
 
     if latest is None:
         return {
-            "message": "No readings found",
-            "data": None
+            "message": "No readings found"
         }
 
     return latest
 
 
-@app.get("/api/readings/recent")
+@app.get("/api/readings/recent", response_model=list[schemas.ReadingResponse])
+@app.get("/readings/recent", response_model=list[schemas.ReadingResponse])
 def get_recent_readings(
     limit: int = 20,
     db: Session = Depends(get_db)
